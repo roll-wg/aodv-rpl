@@ -1,0 +1,2288 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!-- This template is for creating an Internet Draft using xml2rfc,
+     which is available here: http://xml.resource.org.
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [ ]> -->
+<!-- For a complete list and description of processing instructions (PIs),
+     please see http://xml.resource.org/authoring/README.html. -->
+<!-- Below are generally applicable Processing Instructions (PIs) that most
+     I-Ds might want to use.
+     (Here they are set differently than their defaults in xml2rfc v1.32) -->
+<?rfc strict="yes" ?>
+<!-- give errors regarding ID-nits and DTD validation -->
+<!-- control the table of contents (ToC) -->
+<?rfc toc="yes"?>
+<!-- generate a ToC -->
+<?rfc tocdepth="4"?>
+<!-- the number of levels of subsections in ToC. default: 3 -->
+<!-- control references -->
+<?rfc symrefs="yes"?>
+<!-- use symbolic references tags, i.e, [RFC2119] instead of [1] -->
+<?rfc sortrefs="yes" ?>
+<!-- sort the reference entries alphabetically -->
+<!-- control vertical white space
+     (using these PIs as follows is recommended by the RFC Editor) -->
+<?rfc compact="yes" ?>
+<!-- do not start each main section on a new page -->
+<?rfc subcompact="no" ?>
+<!-- keep one blank line between list items -->
+<!-- end of list of popular I-D processing instructions -->
+<rfc category="std" docName="draft-ietf-roll-aodv-rpl-15" ipr="trust200902"
+	submissionType="IETF" consensus="true">
+  <!-- category values: std, bcp, info, exp, and historic
+ http://umeeting.huawei.com/Portal/business.action?BMECID=1474233&BMETimestamp=1426658395147
+	        ipr values: full3667, noModification3667, noDerivatives3667
+     you can add the attributes updates="NNNN" and obsoletes="NNNN"
+     they will automatically be output with "(if approved)" -->
+
+  <!-- ***** FRONT MATTER ***** -->
+
+<!--  TODO:
+  -->
+
+<front>
+    <!-- The abbreviated title is used in the page header - it is only
+         necessary if the full title is longer than 39 characters -->
+
+    <title abbrev="AODV-RPL">
+     Supporting Asymmetric Links in Low Power Networks: AODV-RPL
+    </title>
+
+    <!-- add 'role="editor"' below for the editors if appropriate -->
+
+    <!-- Another author who claims to be an editor -->
+
+    <author fullname="Charles E. Perkins" initials="C.E." surname="Perkins">
+      <organization>Lupin Lodge</organization>
+      <address>
+        <postal>
+          <street/>
+          <city>Los Gatos</city>
+          <region/>
+          <code>95033</code>
+          <country>United States</country>
+        </postal>
+        <phone/>
+        <email>charliep@lupinlodge.com</email>
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+
+    <author fullname="S.V.R Anand" initials="" surname="S.V.R.Anand">
+      <organization>Indian Institute of Science</organization>
+      <address>
+        <postal>
+          <street></street>
+          <!-- Reorder these if your country does things differently -->
+          <city>Bangalore</city>
+          <region/>
+          <code>560012</code>
+          <country>India</country>
+        </postal>
+        <phone/>
+        <email>anandsvr@iisc.ac.in</email>
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+
+    <author fullname="Satish Anamalamudi" initials="S." surname="Anamalamudi">
+      <organization>SRM University-AP</organization>
+      	  <address>
+        <postal>
+          <street>Amaravati Campus</street>
+          <!-- Reorder these if your country does things differently -->
+          <city>Amaravati, Andhra Pradesh</city>
+          <region/>
+          <code>522 502</code>
+          <country>India</country>
+          </postal>
+        <phone/>
+        <email>satishnaidu80@gmail.com</email>
+        <!-- uri and facsimile elements may also be added -->
+      </address>
+    </author>
+
+    <author fullname="Bing Liu" initials="B." surname="Liu">
+      <organization>Huawei Technologies</organization>
+      <address>
+        <postal>
+          <street>No. 156 Beiqing Rd. Haidian District</street>
+          <!-- Reorder these if your country does things differently -->
+          <city>Beijing</city>
+          <region/>
+          <code>100095</code>
+          <country>China</country>
+        </postal>
+       <phone/>
+        <email>remy.liubing@huawei.com</email>
+      </address>
+    </author>
+
+	<date year="2022"/>
+    <!-- If the month and year are both specified and are the current ones,
+         xml2rfc will fill in the current day for you. If only the current
+         year is specified, xml2rfc will fill in the current day and month for
+         you. If the year is not the current one, it is necessary to specify
+         at least a month (xml2rfc assumes day="1" if not specified for the
+	 purpose of calculating the expiry date).  With drafts it is normally
+	 sufficient to specify just the year. -->
+
+    <!-- Meta-data Declarations -->
+
+    <area>Internet</area>
+
+    <workgroup>ROLL</workgroup>
+
+    <!-- WG name at the upperleft corner of the doc;
+         IETF is fine for individual submissions.  If this element is not
+         present, the default is "Network Working Group", which is used by
+         the RFC Editor as a nod to the history of the IETF. -->
+
+    <keyword>AODV, Peer-to-Peer Route Discovery, Asymmetric</keyword>
+
+    <!-- Keywords will be incorporated into HTML output
+         files in a meta tag but they have no effect on text or nroff
+         output. If you submit your draft to the RFC Editor, the
+         keywords will be used for the search engine. -->
+
+    <abstract>
+    <t>	Route discovery for symmetric and asymmetric Peer-to-Peer (P2P)
+        traffic flows is a desirable feature in Low power and Lossy Networks
+	(LLNs).  For that purpose, this document specifies a reactive P2P route
+	discovery mechanism for both hop-by-hop routes and source routing: Ad
+	Hoc On-demand Distance Vector Routing (AODV) based RPL protocol
+	(AODV-RPL).  Paired Instances are used to construct directional paths,
+	for cases where there are asymmetric links between source and target
+	nodes.
+    </t>
+    </abstract>
+</front>
+
+<middle>
+<section anchor="Introduction" title="Introduction">
+    <t>
+	Routing Protocol for Low-Power and Lossy Networks (RPL)
+	<xref target="RFC6550"/> is an IPv6 distance vector routing protocol
+	designed to support
+	multiple traffic flows through a root-based Destination-Oriented
+	Directed Acyclic Graph (DODAG). Typically, a router does not have
+	routing information for most other routers.  Consequently, for traffic
+	between routers within the DODAG (i.e., Peer-to-Peer (P2P) traffic)
+	data packets either have to traverse the root in non-storing mode, or
+	traverse a common ancestor in storing mode.  Such P2P traffic
+	is thereby likely to traverse longer routes and
+	may suffer severe congestion near the root (for more information
+	see <xref target="RFC6687"/>, <xref target="RFC6997"/>,
+	<xref target="RFC6998"/>, <xref target="RFC9010"/>).
+	The network environment that is considered in this document
+	is assumed to be the same as described in Section 1 of
+	<xref target="RFC6550"/>.
+	Each radio interface/link and the associated address should be
+	treated as an independent intermediate router.  Such routers
+	have different links and the rules for the link symmetry
+	apply independently for each of these.
+
+    </t>
+
+    <t>
+	The route discovery process in AODV-RPL is modeled on the analogous
+	peer-to-peer procedure specified in AODV <xref target="RFC3561"/>.
+	The on-demand nature of AODV route discovery is natural for the needs
+	of routing in RPL-based LLNs when routes are needed but
+	aren't yet established.  Peer-to-peer routing is desirable to discover
+	shorter routes, and especially when it is desired to avoid directing
+	additional traffic through a root or gateway node of the network.
+	It may happen that some routes need to be established proactively
+	when known beforehand and when AODV-RPL's route discovery process
+	introduces unwanted delay at the time when the application is
+	launched.
+    </t>
+
+    <t>
+	AODV terminology has been adapted for use with AODV-RPL messages,
+	namely RREQ for Route Request, and RREP for Route Reply.  AODV-RPL
+	currently omits some features compared to AODV -- in particular,
+	flagging Route Errors, "blacklisting" unidirectional links
+	(<xref target="RFC3561"/>), multihoming, and handling unnumbered
+	interfaces.
+    </t>
+
+    <t>
+	AODV-RPL reuses and extends the core RPL
+	functionality to support routes with bidirectional asymmetric links.
+	It retains RPL's DODAG formation, RPL Instance and the associated
+	Objective Function (defined in <xref target="RFC6551"/>), trickle
+	timers, and support for storing and non-storing modes.  AODV-RPL adds
+	basic messages RREQ and RREP as part of RPL DODAG Information
+	Object (DIO) control message, which go in separate (paired) RPL
+	instances.  AODV-RPL does not utilize the Destination
+	Advertisement Object (DAO) control message of RPL.
+<!-- The P2P routes do not have to go through the tree root.  I don't remember
+     what are the point-to-multipoint routes under discussion here.   -->
+	AODV-RPL uses the "P2P Route Discovery Mode of Operation" (MOP == 4)
+	with three new Options for the DIO message, dedicated to discover P2P
+	routes. These P2P routes may differ from routes discoverable by native
+	RPL.  Since AODV-RPL uses newly defined Options and a newly allocated
+	multicast group (see <xref target="iana"/>), there is no conflict
+	with P2P-RPL <xref target="RFC6997"/>, a previous document using the
+	same MOP.  AODV-RPL can be operated whether or not P2P-RPL or native
+	RPL is running otherwise.  For many networks AODV-RPL could be a
+	replacement for RPL, since it can find better routes at very moderate
+	cost. Consequently, it seems unlikely that RPL would be needed in
+	a network that is running AODV-RPL, even though it would be possible
+	to run both protocols at the same time.
+<!--
+	However, there does not seem to be much value in
+	maintaining two routing protocols even if they are compatible.
+  -->
+    </t>
+</section>	<!-- End of section "Introduction" -->
+
+<section anchor="terms" title="Terminology">
+
+    <t> The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+	NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
+	"MAY", and "OPTIONAL" in this document are to be interpreted as
+	described in BCP 14 <xref target="RFC2119"/> <xref target="RFC8174"/>
+	when, and only when, they appear in all capitals, as shown here.
+    </t>
+    <t>
+	AODV-RPL reuses names for messages and data structures, including
+	Rank, DODAG and DODAGID, as defined in RPL <xref target="RFC6550"/>.
+    </t>
+    <t><list style="hanging">
+    <t hangText="AODV"><vspace />
+       	Ad Hoc On-demand Distance Vector Routing <xref target="RFC3561"/>.</t>
+<!--	/* Murray Kucherawy: does not appear anywhere else in the document. */
+    <t hangText="AODV-RPL Instance"><vspace />
+       	Either the RREQ-Instance or RREP-Instance</t>
+  -->
+    <t hangText="ART option"><vspace />
+	AODV-RPL Target option: a target option defined in this document.</t>
+    <t hangText="Asymmetric Route"><vspace />
+       	The route from the OrigNode to the TargNode can traverse different
+	nodes than the route from the TargNode to the OrigNode. An asymmetric
+	route may result from the asymmetry of links, such that only one
+	direction of the series of links satisfies the Objective Function
+	during route discovery.
+<!--  CEP: Need to check this!!
+      But the RREQ *still* has to store the reverse route...
+	If the OrigNode doesn't require an upward route towards
+	itself, the route is also considered as asymmetric. --> </t>
+    <t hangText="Bi-directional Asymmetric Link"><vspace />
+	A link that can be used in both directions but with different link
+	characteristics. </t>
+    <t hangText="DIO"><vspace />
+	DODAG Information Object (as defined in <xref target="RFC6550"/>) </t>
+    <t hangText="DODAG RREQ-Instance (or simply RREQ-Instance)"><vspace />
+	RPL Instance built using the DIO with RREQ option; used for
+	transmission of control messages from OrigNode to TargNode, thus
+	enabling data transmission from TargNode to OrigNode. </t>
+    <t hangText="DODAG RREP-Instance (or simply RREP-Instance)"><vspace />
+	RPL Instance built using the DIO with RREP option; used for
+	transmission of control messages from TargNode to OrigNode thus
+	enabling data transmission from OrigNode to TargNode. </t>
+    <t hangText="Downward Direction"><vspace />
+	The direction from the OrigNode to the TargNode.</t>
+    <t hangText="Downward Route"><vspace />
+	A route in the downward direction. </t>
+    <t hangText="hop-by-hop route"><vspace />
+	A route for which each router along the routing path stores
+	routing information about the next hop. A hop-by-hop route is
+	created using RPL's "storing mode".</t>
+    <t hangText="on-demand routing"><vspace />
+	Routing in which a route is established only when needed. </t>
+    <t hangText="OrigNode"><vspace />
+        The IPv6 router (Originating Node) initiating the AODV-RPL
+        route discovery to obtain a route to TargNode. </t>
+    <t hangText="Paired DODAGs"><vspace />
+	Two DODAGs for a single route discovery process between OrigNode
+	and TargNode.</t>
+    <t hangText="P2P"><vspace />
+	Peer-to-Peer -- in other words, not constrained a priori to
+	traverse a common ancestor. </t>
+    <t hangText="reactive routing"><vspace />
+	Same as "on-demand" routing. </t>
+    <t hangText="REJOIN_REENABLE"><vspace />
+	The duration during which a node is prohibited from joining a
+	DODAG with a particular RREQ-InstanceID, after it has left a DODAG
+	with the same RREQ-InstanceID. The default value of REJOIN_REENQBLE is
+	15 minutes.</t>
+    <t hangText="RREQ-DIO message"><vspace />
+	A DIO message containing the RREQ option. The
+	RPLInstanceID in RREQ-DIO is assigned locally by the OrigNode.
+	The RREQ-DIO message has a secure variant as noted in <xref
+	target="RFC6550"/>. </t>
+    <t hangText="RREQ-InstanceID"><vspace />
+	The RPLInstanceID for the RREQ-Instance. The RREQ-InstanceID is formed
+	as the ordered pair (Orig_RPLInstanceID, OrigNode-IPaddr), where
+	Orig_RPLInstanceID is the local RPLInstanceID allocated by OrigNode,
+	and OrigNode-IPaddr is an IP address of OrigNode.  The RREQ-InstanceID
+	uniquely identifies the RREQ-Instance.  </t>
+    <t hangText="RREP-DIO message"><vspace />
+	A DIO message containing the RREP option.
+	OrigNode pairs the RPLInstanceID in RREP-DIO to the one in the
+	associated RREQ-DIO message (i.e., the RREQ-InstanceID) as described
+	in <xref target="asymmetricrrep"/>.  The RREP-DIO message has a secure
+	variant as noted in <xref target="RFC6550"/>. </t>
+    <t hangText="RREP-InstanceID"><vspace />
+	The RPLInstanceID for the RREP-Instance.  The RREP-InstanceID is formed
+	as the ordered pair (Targ_RPLInstanceID, TargNode-IPaddr), where
+	Targ_RPLInstanceID is the local RPLInstanceID allocated by TargNode,
+	and TargNode-IPaddr is an IP address of TargNode.  The RREP-InstanceID
+	uniquely identifies
+	the RREP-Instance.  The RPLInstanceID in the RREP message along with
+	the Delta value indicates the associated RREQ-InstanceID. </t>
+    <t hangText="Source routing"><vspace />
+	A mechanism by which the source supplies a vector of addresses
+	towards the destination node along with each data packet
+	<xref target="RFC6550"/>. </t>
+    <t hangText="Symmetric route"><vspace />
+	The upstream and downstream routes traverse the same routers and over
+	the same links. </t>
+<!-- CEP: pagination :-(  -->
+    <t hangText="TargNode"><vspace />
+	The IPv6 router (Target Node) for which OrigNode requires a
+	route and initiates Route Discovery within the LLN network. </t>
+    <t hangText="Upward Direction"><vspace />
+	The direction from the TargNode to the OrigNode.</t>
+    <t hangText="Upward Route"><vspace />
+	A route in the upward direction. </t>
+    </list></t>
+</section>	<!-- End of section "Terminology" -->
+
+<section title="Overview of AODV-RPL">
+    <t>	With AODV-RPL, routes from OrigNode to TargNode within the LLN
+	network are established "on-demand".  In other words, the route
+	discovery mechanism in AODV-RPL is invoked reactively when OrigNode
+	has data for delivery to the TargNode but existing routes do not
+	satisfy the application's requirements.  AODV-RPL works
+	without requiring the use of RPL or any other routing protocol.
+    </t>
+    <t>
+	The routes discovered by
+	AODV-RPL are not constrained to traverse a common ancestor.
+	AODV-RPL can enable asymmetric communication paths in networks with
+	bidirectional asymmetric links. For this purpose, AODV-RPL enables
+	discovery of two routes: namely, one from OrigNode to TargNode, and
+	another from TargNode to OrigNode.  AODV-RPL also
+	enables discovery of symmetric routes along Paired DODAGs, when
+	symmetric routes are possible (see <xref target="channel"/>).
+    </t>
+    <t>
+	In AODV-RPL, routes are discovered by first forming a temporary DAG
+	rooted at the OrigNode.  Paired DODAGs (Instances) are constructed
+	during route
+	formation between the OrigNode and TargNode.
+	The RREQ-Instance is formed by route control messages from OrigNode to
+	TargNode whereas the RREP-Instance is formed by route control messages
+	from TargNode to OrigNode.  The route
+	discovered in the RREQ-Instance is used for transmitting data from
+	TargNode to OrigNode, and the route discovered in RREP-Instance is
+	used for transmitting data from OrigNode to TargNode.
+    </t>
+    <t>
+	Intermediate routers join the DODAGs
+	based on the Rank <xref target="RFC6550"/> as calculated from the DIO
+	message. Henceforth in this document, "RREQ-DIO message" means the DIO
+	message from OrigNode toward TargNode, containing the RREQ option as
+	specified in <xref target="RREQmsg"/>.  The RREQ-InstanceID is formed
+	as the ordered pair (Orig_RPLInstanceID, OrigNode-IPaddr), where
+	Orig_RPLInstanceID is the local RPLInstanceID allocated by OrigNode,
+	and OrigNode-IPaddr is the IP address of OrigNode.  A node receiving
+	the RREQ-DIO can use the RREQ-InstanceID to identify the proper OF
+	whenever that node receives a data packet with Source Address ==
+	OrigNode-IPaddr and IPv6 RPL Option having the RPLInstanceID ==
+	Orig_RPLInstanceID along with 'D' == 0.
+    </t>
+    <t>
+	Similarly, "RREP-DIO message"
+	means the DIO message from TargNode toward OrigNode, containing the
+	RREP option as specified in <xref target="RREPmsg"/>.
+	The RREP-InstanceID is formed
+	as the ordered pair (Targ_RPLInstanceID, TargNode-IPaddr), where
+	Targ_RPLInstanceID is the local RPLInstanceID allocated by TargNode,
+	and TargNode-IPaddr is the IP address of TargNode.  A node receiving
+	the RREP-DIO can use the RREP-InstanceID to identify the proper OF
+	whenever that node receives a data packet with Source Address ==
+	TargNode-IPaddr and IPv6 RPL Option having the RPLInstanceID ==
+	Targ_RPLInstanceID along with 'D' == 0.
+    </t>
+
+</section>	<!-- End of section "Overview of AODV-RPL" -->
+
+<section anchor="Options" title="AODV-RPL DIO Options">
+    <section anchor="RREQmsg" title="AODV-RPL RREQ Option">
+    <t>
+	OrigNode selects one of its IPv6 addresses and sets it in the DODAGID
+<!--	CEP: SHOULD changed to MUST by request of Alvaro Retana.  -->
+	field of the RREQ-DIO message.  The address scope of the selected
+	address must encompass the domain where the route is built (e.g, not
+	link-local).  Exactly one RREQ option MUST be present
+	in a RREQ-DIO message, otherwise the message MUST be dropped.
+  <figure anchor="figRREQ" title="Format for AODV-RPL RREQ Option">
+  <artwork align="center"><![CDATA[
+ 0                   1                   2                   3
+ 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Option Type  | Option Length |S|H|X| Compr | L |  RankLimit  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  Orig SeqNo   |                                               |
++-+-+-+-+-+-+-+-+                                               |
+|                                                               |
+|                                                               |
+|           Address Vector (Optional, Variable Length)          |
+|                                                               |
+|                                                               |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+]]></artwork>
+  </figure>
+    OrigNode supplies the following information in the RREQ option: </t>
+    <t><list style="hanging">
+    <t hangText="Option Type"><vspace />
+	TBD2</t>
+    <t hangText="Option Length"><vspace />
+	The length of the option in octets, excluding the Type and Length
+	fields. Variable due to the presence of the address vector and the
+	number of octets elided according to the Compr value.</t>
+    <t hangText="S"><vspace />
+	Symmetric bit indicating a symmetric route from the OrigNode to the
+	router transmitting this RREQ-DIO. See <xref target="channel"/>.</t>
+    <t hangText="H"><vspace />
+	Set to one for a hop-by-hop route.  Set to zero for a source route.
+	This flag controls both the downstream route and upstream route. </t>
+    <t hangText="X"><vspace />
+	Reserved; MUST be initialized to zero and
+					ignored upon reception.</t>
+    <t hangText="Compr"><vspace />
+	4-bit unsigned integer. When Compr is nonzero, exactly that number of
+	prefix octets MUST be elided from each address before storing it in
+        the Address Vector. The octets elided are shared with the IPv6 address
+	in the DODAGID. This field is only used in source routing mode (H=0).
+	In hop-by-hop mode (H=1), this field MUST be set to zero and ignored
+	upon reception.</t>
+<!--  CEP: Shouldn't we allow address compression for the Target Option? -->
+    <t hangText="L"><vspace />
+<?rfc subcompact="yes" ?>
+	2-bit unsigned integer determining the time duration that a node
+	is able to belong to the RREQ-Instance (a temporary DAG including the
+	OrigNode and the TargNode).  Once the time is reached, a node MUST
+	leave the RREQ-Instance and stop sending or receiving any more DIOs
+	for the RREQ-Instance.  This naturally depends on the node's ability
+	to keep track of time.  Once a node leaves an RREQ-Instance, it MUST
+	NOT rejoin the same RREQ-Instance for at least the time interval
+	specified by the configuration variable REJOIN_REENABLE.
+	<list style="symbols">
+	    <t>0x00: No time limit imposed. </t>
+	    <t>0x01: 16 seconds </t>
+	    <t>0x02: 64 seconds </t>
+	    <t>0x03: 256 seconds </t>
+	</list>
+<?rfc subcompact="no" ?>
+	L is independent from the route lifetime, which is defined in the
+	DODAG configuration option.
+	<!-- The route entries in hop-by-hop routing
+	and states of source routing can still be maintained
+	even after the node no longer maintains DAG connectivity or
+	messaging. -->
+	<!--  according to email to the list, 12/27/2020 -->
+    </t>
+    <t hangText="RankLimit"><vspace />
+	This field indicates the upper limit on the integer portion of the
+	Rank (calculated using the DAGRank() macro defined in
+	<xref target="RFC6550"/>).  A value of 0 in this field
+	indicates the limit is infinity. </t>
+    <t hangText="Orig SeqNo"><vspace />
+	Sequence Number of OrigNode. See <xref target="rreq"/>.  </t>
+    <t hangText="Address Vector"><vspace />
+	A vector of IPv6 addresses representing the route that the RREQ-DIO
+	has passed. It is only present when the H bit is set to 0.
+	The prefix of each address is elided according to the Compr field.</t>
+    </list>
+    </t>
+    <t> TargNode can join the RREQ instance at a Rank whose integer portion is
+	less than or equal to the RankLimit.  Any other node MUST NOT join a
+	RREQ instance if its own Rank would be equal to or higher than
+	RankLimit.  A router MUST discard a received RREQ if the integer part
+	of the advertised Rank equals or exceeds the RankLimit. </t>
+    <t> </t>
+    </section>	<!-- End of section "RREQ Message" -->
+
+    <section anchor="RREPmsg" title="AODV-RPL RREP Option">
+    <t>
+	TargNode sets one of its IPv6 addresses in the DODAGID
+<!--	CEP: SHOULD changed to MUST, by request of Alvaro Retana.  -->
+	field of the RREP-DIO message.  The address scope of the selected
+	address must encompass the domain where the route is built (e.g, not
+	link-local).   Exactly one RREP option MUST be present
+	in a RREP-DIO message, otherwise the message MUST be dropped.
+	TargNode supplies the following information in the RREP option:
+	<figure anchor="figRREP" title="Format for AODV-RPL RREP option">
+	<artwork align="center"><![CDATA[
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  Option Type  | Option Length |G|H|X| Compr | L |  RankLimit  |
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |   Delta   |X X|                                               |
+    +-+-+-+-+-+-+-+-+                                               |
+    |                                                               |
+    |                                                               |
+    |           Address Vector (Optional, Variable Length)          |
+    .                                                               .
+    .                                                               .
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]></artwork> </figure>
+
+        <list style="hanging">
+	<t hangText="Option Type"><vspace />
+	    TBD3 </t>
+	<t hangText="Option Length"><vspace />
+	    The length of the option in octets, excluding the Type and Length
+	    fields.  Variable due to the presence of the address vector and
+	    the number of octets elided according to the Compr value.</t>
+	<t hangText="G"><vspace />
+	    Gratuitous RREP (see <xref target="GRREP"/>).</t>
+	<t hangText="H"><vspace />
+	    The H bit in the RREP option MUST be set to be the same as the
+	    H bit in RREQ option.
+	    It requests either source routing (H=0) or hop-by-hop (H=1) for
+	    the downstream route.</t>
+	<t hangText="X"><vspace />
+	    Reserved; MUST be initialized to zero and
+					ignored upon reception.</t>
+	<t hangText="Compr"><vspace />
+	    4-bit unsigned integer. Same definition as in RREQ option. </t>
+	<t hangText="L"><vspace />
+	    2-bit unsigned integer defined as in RREQ option.  The
+	    lifetime of the RREP-Instance MUST be no greater than the
+	    lifetime of the RREQ-Instance to which it is paired.</t>
+	<t hangText="RankLimit"><vspace />
+	    Similarly to RankLimit in the RREQ message, this field indicates the
+	    upper limit on the integer portion of the Rank.  A value
+	    of 0 in this field indicates the limit is infinity. </t>
+<!--  CEP: is 7 bits O.K. for RankLimit?  -->
+	<t hangText="Delta"><vspace />
+	    6-bit unsigned integer. This field is used to recover the
+	    RREQ-InstanceID (see <xref target="instancepairing"/>);
+	    0 indicates that the RREQ-InstanceID has the same value
+	    as the RPLInstanceID of the RREP message.  </t>
+	<t hangText="X X"><vspace />
+	    Reserved; MUST be initialized to zero and
+					ignored upon reception.</t>
+	<t hangText="Address Vector"><vspace />
+	    Only present when the H bit is set to 0.  For an asymmetric route,
+	    the Address Vector represents the IPv6 addresses of the path
+	    through the network the RREP-DIO has passed.  For a symmetric
+	    route, it is the Address Vector when the RREQ-DIO arrives at the
+	    TargNode, unchanged during the transmission to the OrigNode. </t>
+	</list>
+    </t>
+<!--
+/* Make the following into an XML comment */
+[A]  It is technically feasible to have partially active DODAG pair.
+Having this condition lets graceful shutdown of the current route discovery
+instance initiated by OrigNode.  It marks the end of DODAG pairing as RREQ
+and RREP Instances can be treated as belonging to the same route discovery.
+The resources held by the intermediate nodes is released, and OrigNode can
+start reusing the same RPLInstanceID in the RREQ for its new
+route discovery. Having RREQ-Instance lifetime thus enables this.
+  -->
+
+    </section>	<!-- End of section "AODV-RPL RREP Option" -->
+
+    <section anchor="artop" title="AODV-RPL Target Option">
+    <t> The AODV-RPL Target (ART) Option is based on the Target Option
+	in core RPL <xref target="RFC6550"/>.  The Flags field is replaced by
+	the Destination Sequence Number of the TargNode and the Prefix
+	Length field is reduced to 7 bits so that the value is limited to
+	be no greater than 127.  </t>
+    <t>
+	A RREQ-DIO message MUST carry at least one ART Option.  A RREP-DIO
+	message MUST carry exactly one ART Option. Otherwise, the message
+	MUST be dropped.
+<!--  CEP: Is it needed for RREPs with symmetric routes? -->
+    </t>
+    <t>
+	OrigNode can include multiple TargNode addresses via multiple AODV-RPL
+	Target Options in the RREQ-DIO, for routes that share the same
+	requirement on metrics.  This reduces the cost to building only one
+	DODAG.
+    </t>
+    <t>
+    <figure anchor="figTarg" title="ART Option format for AODV-RPL">
+      <artwork align="center"><![CDATA[
+     0                   1                   2                   3
+     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |  Option Type  | Option Length |  Dest SeqNo   |X|Prefix Length|
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    |                                                               |
+    +                                                               |
+    |           Target Prefix / Address (Variable Length)           |
+    .                                                               .
+    .                                                               .
+    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        ]]></artwork>
+      </figure>
+      <list style="hanging">
+	<t hangText="Option Type"> <vspace />
+	    TBD4
+	</t>
+	<t hangText="Option Length"> <vspace />
+	    Length of the option in octets excluding the
+	    Type and Length fields.
+	</t>
+	<t hangText="Dest SeqNo"> <vspace /></t>
+	<t> In RREQ-DIO, if nonzero, it is the Sequence Number for the last
+	    route that OrigNode stored to the TargNode for which a route is
+	    desired.  In RREP-DIO, it is the destination sequence number
+	    associated to the route.  Zero is used if there is no known
+	    information about the sequence number of TargNode, and not used
+	    otherwise.
+	</t>
+	<t hangText="X"> <vspace />
+	    A one-bit reserved field.  This field MUST be initialized to zero
+	    by the sender and MUST be ignored by the receiver.
+	</t>
+	<t hangText="Prefix Length"> <vspace />
+	    7-bit unsigned integer.  Number of valid leading bits
+	    in the IPv6 Prefix.  If Prefix Length is 0, then the value in the
+	    Target Prefix / Address field represents an IPv6 address, not
+	    a prefix.
+	</t>
+	<t hangText="Target Prefix / Address"> <vspace />
+	    (variable-length field) An IPv6 destination address or prefix.
+	    The Prefix Length field contains the number of valid leading bits
+	    in the prefix.  The Target Prefix / Address field contains the
+	    least number of octets that can represent all of the bits of the
+	    Prefix, in other words Ceil(Prefix Length/8) octets.
+	    The initial bits in the Target Prefix / Address field
+	    preceding the prefix length (if any) MUST be set to zero on
+	    transmission and MUST be ignored on receipt.  If Prefix Length
+	    is zero, the Address field is 128 bits for IPv6 addresses.
+<!-- CEP: Previous wording for last sentence:
+	    The remaining bits in the Target Prefix / Address field
+	    after the prefix length (if any) MUST be set to zero on
+	    transmission and MUST be ignored on receipt.
+  -->
+	</t>
+      </list>
+    </t>
+    </section> <!-- End of section "AODV-RPL Target Option" -->
+</section> <!-- End of section "AODV-RPL Options" -->
+
+<section anchor="channel" title="Symmetric and Asymmetric Routes">
+    <t>
+	Links are considered symmetric until indication to the contrary is
+	received.  In <xref target="figSymm-a"/> and
+	<xref target="figSymm-b"/>, BR is the Border Router, O is the
+	OrigNode, each R is an intermediate router, and T is the TargNode.
+	In this example, the use of BR is only for illustrative purposes;
+	AODV does not depend on the use of border routers for its operation.
+	If the RREQ-DIO arrives over an interface that
+	is known to be symmetric, and the S bit is set to 1, then it remains
+	as 1, as illustrated in <xref target="figSymm-a"/>.  If an
+	intermediate router sends out RREQ-DIO with the S bit set to 1, then
+	each link en route from the OrigNode O to this router has met
+	the requirements of route discovery, and the route can be used
+	symmetrically.
+    </t>
+    <t><figure anchor="figSymm-a"
+	title="AODV-RPL with Symmetric Instances">
+    <artwork align="center"><![CDATA[
+                               BR
+                           /----+----\
+                         /      |      \
+                       /        |         \
+                      R         R           R
+                   _/  \        |          /  \
+                  /     \       |         /     \
+                 /       \      |        /        \
+               R -------- R --- R ----- R -------- R
+             /  \   <--S=1-->  / \    <--S=1-->   /  \
+      <--S=1-->  \            /   \             /   <--S=1-->
+        /         \          /     \          /         \
+      O ---------- R ------ R------ R ----- R ----------- T
+     / \                   / \             / \           / \
+    /   \                 /   \           /   \         /   \
+   /     \               /     \         /     \       /     \
+  R ----- R ----------- R ----- R ----- R ----- R ---- R----- R
+
+    >---- RREQ-Instance (Control: O-->T;  Data: T-->O) ------->
+    <---- RREP-Instance (Control: T-->O;  Data: O-->T) -------< ]]></artwork>
+    </figure></t>
+    <t>
+	Upon receiving a RREQ-DIO with the S bit set to 1, a node determines
+	whether this link can be used symmetrically, i.e., both
+	directions meet the requirements of data transmission.  If the RREQ-DIO
+	arrives over an interface that is not known to be symmetric, or is
+	known to be asymmetric, the S bit is set to 0.  If the S bit arrives
+	already set to be '0', it is set to be '0' when the RREQ-DIO is
+	propagated (<xref target="figSymm-b"/>).  For an asymmetric route,
+	there is at least one hop which doesn't satisfy the Objective Function.
+	Based on the S bit received in RREQ-DIO, TargNode T
+	determines whether or not the route is symmetric before transmitting
+	the RREP-DIO message upstream towards the OrigNode O.
+    </t>
+    <t>
+<!--  CEP: Change to ...used ....  are  -->
+	It is beyond the scope of this document to specify the criteria used
+	when determining whether or not each link is symmetric.  As an
+	example, intermediate routers
+	can use local information (e.g., bit rate, bandwidth, number of cells
+	used in 6tisch <xref target="RFC9030"/>), a priori
+	knowledge (e.g., link quality according to previous communication) or
+	use averaging techniques as appropriate to the application.
+	    Other link metric information
+	    can be acquired before AODV-RPL operation, by executing evaluation
+	    procedures; for instance test traffic can be generated between
+	    nodes of the deployed network.  During AODV-RPL operation, OAM
+	    techniques for evaluating link state (see <xref target="RFC7548"/>,
+	    <xref target="RFC7276"/>, <xref target="co-ioam"/>) MAY be used
+	    (at regular intervals appropriate for the LLN).
+            The evaluation procedures are out of scope for AODV-RPL.
+	    For further information on this topic,
+	    see <xref target="Link_Asymmetry"/>, 
+	    <xref target="low-power-wireless"/>,
+	    and <xref target="empirical-study"/>.
+    </t>
+    <t>
+	<xref target="appendix-a"/> describes an example method using the
+	upstream Expected Number of Transmissions (ETX) and downstream
+	Received Signal Strength Indicator
+	(RSSI) to estimate whether the link is symmetric in terms of link
+	quality using an averaging technique.
+
+	<figure anchor="figSymm-b"
+  		title="AODV-RPL with Asymmetric Paired Instances">
+		<artwork align="center"><![CDATA[
+                                  BR
+                              /----+----\
+                            /      |      \
+                          /        |        \
+                        R          R          R
+                      / \          |        /   \
+                    /     \        |       /      \
+                  /         \      |      /         \
+                 R --------- R --- R ---- R --------- R
+               /  \   --S=1-->   / \    --S=0-->   /   \
+         --S=1-->   \           /    \            /   --S=0-->
+          /          \        /       \         /         \
+        O ---------- R ------ R------ R ----- R ----------- T
+       / \                   / \             / \           / \
+      /  <--S=0--           /   \           /   \         / <--S=0--
+     /     \               /     \         /     \       /     \
+    R ----- R ----------- R ----- R ----- R ----- R ---- R----- R
+                <--S=0--   <--S=0-- <--S=0-- <--S=0--    <--S=0--
+
+    >---- RREQ-Instance (Control: O-->T;  Data: T-->O) ------->
+    <---- RREP-Instance (Control: T-->O;  Data: O-->T) -------<]]></artwork>
+    </figure>
+	As illustrated in <xref target="figSymm-b"/>, an intermediate
+	router determines the S bit value that the RREQ-DIO should carry
+	using link asymmetry detection methods as discussed earlier in
+	this section.  In many cases the intermediate router has already
+	made the link asymmetry decision by the time RREQ-DIO arrives.
+    </t>
+</section>	<!-- End of section "Symmetric and Asymmetric Routes" -->
+
+<section anchor="aodvrplop" title="AODV-RPL Operation">
+    <section anchor="rreq" title="Route Request Generation">
+    <t>
+	The route discovery process is initiated when an application
+	at the OrigNode has data to be transmitted to the TargNode, but does
+	not have a route that satisfies the Objective Function for the target
+	of the application's data. In this case, the OrigNode builds a local
+	RPLInstance and a DODAG rooted at itself. Then it transmits a DIO
+	message containing exactly one RREQ option
+	(see <xref target="RREQmsg"/>) to multicast group all-AODV-RPL-nodes.
+	The RREQ-DIO MUST contain at least one ART Option
+	(see <xref target="artop"/>), which indicates the TargNode.
+<!--  CEP: or network prefix containing the TargNode.  -->
+	The S bit in RREQ-DIO sent out by the OrigNode is set to 1.
+    </t>
+    <t>
+	Each node maintains a sequence number; the operation is specified in
+	section 7.2 of <xref target="RFC6550"/>.
+	When the OrigNode initiates a
+	route discovery process, it MUST increase its own sequence number to
+	avoid conflicts with previously established routes.  The sequence
+	number is carried in the Orig SeqNo field of the RREQ option.
+    </t>
+    <t> The Target Prefix / Address in the ART Option can be a unicast IPv6
+	address or a prefix.  The OrigNode can initiate
+	the route discovery process for multiple targets simultaneously by
+	including multiple ART Options. Within a RREQ-DIO the Objective
+	Function for the routes to different TargNodes MUST be the same.
+    </t>
+    <t> OrigNode can maintain different RPLInstances to discover routes with
+	different requirements to the same targets. Using the RPLInstanceID
+	pairing mechanism (see <xref target="instancepairing"/>), route replies
+	(RREP-DIOs) for different RPLInstances can be generated.
+    </t>
+    <t> The transmission of RREQ-DIO obeys the Trickle timer
+	<xref target="RFC6206"/>.  If the duration specified by the
+	L field has elapsed, the OrigNode MUST leave
+	the DODAG and stop sending RREQ-DIOs in the related RPLInstance.
+	OrigNode needs to set L field such that the DODAG will not
+	prematurely timeout during data transfer with the TargNode.
+	For setting this value, it has to consider factors such as
+	Trickle timer, TargNode hop distance, network size, link
+	behavior, expected data usage time, and so on.
+    </t>
+    </section>
+<!--  CEP: The Trickle timer eliminates the need for RREQ_WAIT_TIME?  -->
+
+    <section anchor="process_rreq"
+			title="Receiving and Forwarding RREQ messages">
+
+      <section anchor="rreq_step1"
+			title="Step 1: RREQ reception and evaluation">
+
+<!--  CEP: descriptive text, might decide to include it somewhere.
+
+    An intermediate router X receives a RREQ message a neighbor Y.  If X can
+    use the incoming link to transmit a packet to OrigNode by way of Y, X will
+    propagate the RREQ message in hopes of eventually providing Targnode with
+    a route towards OrigNode.  In that case, X could use Y as the first hop
+    of its own route towards OrigNode, but very likely X does not otherwise
+    need a route to OrigNode.  X determines whether it can use the incoming
+    link to transmit a packet to OrigNode by determining whether or not the
+    upstream direction of the incoming link satisfies the OF.
+
+    When TargNode receives a RREQ, and the upstream direction of the incoming
+    link satisfies the OF, TargNode has a route to OrigNode via the neighbor Y
+    that transmitted the RREQ.  If in addition the S bit is set in the
+    OrigNode, and if the downstream direction of the incoming link is suitable
+    for TargNode to receive packets from that neighbor Y, then the entire
+    path traversed by the RREQ is symmetric and OrigNode can use that path
+    to send packets to TargNode.  In order to provide that routing information
+    (about a viable path to TargNode) to OrigNode, TargNode unicasts a RREP
+    back to Y.
+  -->
+	<t> When a router X receives a RREQ message over a link from a
+	    neighbor Y, X first determines whether or not the RREQ is valid.
+	    If so, X then determines whether or not it has sufficient
+	    resources available to maintain the state needed to process an
+	    eventual RREP if the RREP were to be received.  If not, then
+	    X MUST drop the packet and discontinue processing of the RREQ.
+	    Otherwise, X next determines whether the RREQ advertises a usable
+	    route to OrigNode, by checking whether the link to Y can be
+	    used to tramsmit packets to OrigNode.
+	</t>
+
+	<t>
+	    When H=0 in the incoming RREQ, the router MUST drop the
+	    RREQ-DIO if one of its addresses is present in the Address Vector.
+	    When H=1 in the incoming RREQ, the router MUST drop the RREQ
+	    message if Orig SeqNo field of the RREQ is older than the SeqNo
+	    value that X has stored for a route to OrigNode.
+	    Otherwise, the router determines whether to propagate the RREQ-DIO.
+	    It does this by determining whether or not a route to OrigNode
+	    using the upstream direction of the incoming link satisfies the
+	    Objective Function (OF).  In order to evaluate the OF, the router
+	    first determines the maximum useful rank (MaxUsefulRank).  If the
+	    router has previously joined the RREQ-Instance associated with
+	    the RREQ-DIO, then MaxUsefulRank is set to be the Rank value that
+	    was stored when the router processed the best previous RREQ for
+	    the DODAG with the given RREQ-Instance.  Otherwise, MaxUsefulRank
+	    is set to be RankLimit.  If OF cannot be satisfied (i.e.,
+	    the Rank evaluates to a value greater than MaxUsefulRank)
+	    the RREQ-DIO MUST be dropped, and the following steps are not
+	    processed.  Otherwise, the router MUST join the RREQ-Instance
+	    and prepare to propagate the RREQ-DIO, as follows. The upstream
+	    neighbor router that transmitted the received RREQ-DIO is selected
+	    as the preferred parent.
+	</t>
+      </section><!--End of section "Step 1: RREQ reception and evaluation"-->
+
+      <section anchor="rreq_step2"
+		title="Step 2: TargNode and Intermediate Router determination">
+	<t>	<!-- Kaduk comment 16 -->
+	    After determining that a received RREQ provides a usable route
+	    to OrigNode, a router determines whether it is a TargNode, or
+	    a possible intermediate router between OrigNode and a TargNode,
+	    or both.  The router is a TargNode if it finds one of its own
+	    addresses in a Target Option in the RREQ.  After possibly
+	    propagating the RREQ according to the procedures in Steps 3,
+	    4, and 5, the TargNode generates a RREP as specified in
+	    <xref target="gen-rrep"/>.  If S=0, the determination of TargNode
+	    status and determination of a usable route to OrigNode is the same. 
+	</t>
+	<t>
+	    If the OrigNode tries to reach multiple TargNodes in a
+	    single RREQ-Instance, one of the TargNodes can be an intermediate
+	    router to other TargNodes.  In this case, before transmitting the
+	    RREQ-DIO to multicast group all-AODV-RPL-nodes, a TargNode MUST
+	    delete the Target Option encapsulating its own address, so that
+	    downstream routers with higher Rank values do not try to create
+	    a route to this TargNode.
+	</t>
+	<t>
+	    An intermediate router could receive several RREQ-DIOs from
+	    routers with lower Rank values in the same RREQ-Instance with
+	    different lists of Target Options.  For the purposes of determining
+	    the intersection with previous incoming RREQ-DIOs, the intermediate
+	    router maintains a record of the targets that have been requested
+	    for a given RREQ-Instance.  An incoming RREQ-DIO message having
+	    multiple ART Options coming from a router with higher Rank than
+	    the Rank of the stored targets is ignored.  When transmitting the
+	    RREQ-DIO, the intersection of all received lists MUST be included
+	    if it is nonempty after TargNode has deleted the Target Option
+	    encapsulating its own address.  If the intersection is empty, it
+	    means that all the targets have been reached, and the router MUST
+	    NOT transmit any RREQ-DIO.  Otherwise it proceeds to
+	    <xref target="rreq_step3"/>.
+	</t>
+	<t>
+	    For example, suppose two RREQ-DIOs are received with the same
+	    RPLInstance and OrigNode.  Suppose further that the first
+	    RREQ has (T1, T2) as the targets, and the second one has (T2, T4)
+	    as targets. Then only T2 needs to be included in the generated
+	    RREQ-DIO.
+	</t>
+      </section><!--End of section
+		"Step 2: TargNode and Intermediate Router determination"-->
+
+      <section anchor="rreq_step3"
+			title="Step 3: Intermediate Router RREQ processing">
+	<t>
+	    The intermediate router establishes itself as a viable node
+	    for a route to OrigNode as follows.  If the H bit is set to 1,
+	    for a hop-by-hop route, then the router MUST build or update
+	    its upward route entry towards OrigNode, which includes at least
+	    the following items: Source Address, RPLInstanceID, Destination
+	    Address, Next Hop, Lifetime, and Sequence Number.
+<!--  CEP TODO: What is the Destination Address, if not OrigNode?  -->
+            The Destination Address and the RPLInstanceID respectively can be
+	    learned from the DODAGID and the RPLInstanceID of the RREQ-DIO.
+	    The Source Address is the address used by the router to
+	    send data to the Next Hop, i.e., the preferred parent.
+	    The lifetime is set according to DODAG configuration (not
+	    the L field) and can be extended when the route is actually used.
+	    The sequence number represents the freshness of the route entry;
+	    it is copied from the Orig SeqNo field of the RREQ option. A route
+	    entry with the same source and destination address, same
+	    RPLInstanceID, but stale sequence number, MUST be deleted.
+<!--  CEP TODO: Need to specify that the information from the existing
+		RREQ updates the route entry?  What happens if the existing
+		route entry has a newer SeqNo than the RREQ?  Proposal:
+		intermediate router updates the RREQ with its newer SeqNo. -->
+	</t>
+      </section>
+	    <!--End of section "Step 3: Intermediate Router RREQ processing"-->
+
+      <section anchor="rreq_step4"
+	title="Step 4: Symmetric Route Processing at an Intermediate Router">
+	<t>
+	    If the S bit of the incoming RREQ-DIO is 0, then the route cannot
+	    be symmetric, and the S bit of the RREQ-DIO to be transmitted is
+	    set to 0.  Otherwise, the router MUST determine whether the
+	    downward (i.e., towards the TargNode) direction of the
+	    incoming link satisfies the OF.  If so, the S bit of the
+	    RREQ-DIO to be transmitted is set to 1.  Otherwise the S bit of
+	    the RREQ-DIO to be transmitted is set to 0.
+	</t>
+	<t>
+	    When a router joins the RREQ-Instance, it also associates within
+	    its data structure for the RREQ-Instance the information about
+	    whether or not the RREQ-DIO to be transmitted has the S-bit set
+	    to 1.  This information
+	    associated to RREQ-Instance is known as the S-bit of the
+	    RREQ-Instance. It will be used later during the RREP-DIO message
+	    processing <xref target="asymmetricrrep"/>. <!--  for RPLInstance
+	    pairing as described in <xref target="forwardRREP"/>.
+  CEP TODO: check language about pairing.  -->
+	</t>
+	<t>
+	    Suppose a router has joined the RREQ-Instance, and H=0, and the
+	    S-bit of the RREQ-Instance is set to 1.  In this case, the router
+	    MAY optionally associate to the RREQ-Instance, the Address Vector
+	    of the symmetric route back to OrigNode.  This is useful if the
+	    router later receives an RREP-DIO that is paired with the
+	    RREQ-Instance.  If the router does NOT associate the Address
+	    Vector, then it has to rely on multicast for the RREP.
+	    This can impose a substantial performance penalty.
+	</t>
+      </section><!-- End of section
+	    "Step 4: Symmetric Route Processing at an Intermediate Router" -->
+
+      <section anchor="rreq_step5"
+		title="Step 5: RREQ propagation at an Intermediate Router">
+	<t>
+	    If the router is an intermediate router, then it transmits the
+	    RREQ-DIO to the multicast group all-AODV-RPL-nodes; if the H bit is
+	    set to 0, the intermediate router MUST append
+	    the address of its interface receiving the RREQ-DIO into the
+	    address vector.  If, in addition, the address of the router's
+	    transmitting the RREQ-DIO is not the same as the address of
+	    the interface receiving the RREQ-DIO, the router MUST also
+	    append the transmitting interface address into the address vector.
+	</t>
+      </section><!-- End of section
+		"Step 5: RREQ propagation at an Intermediate Router" -->
+
+      <section anchor="rreq_step6"
+			title="Step 6: RREQ reception at TargNode">
+	<t>
+	    If the router is a TargNode and was already associated with the
+	    RREQ-Instance, it takes no further action and does not send an
+	    RREP-DIO.  If TargNode is not already associated with the
+	    RREQ-Instance, it prepares and transmits a RREP-DIO, possibly
+	    after waiting for RREP_WAIT_TIME, as detailed in
+	    (<xref target="gen-rrep"/>).  
+	</t>
+      </section><!--End of section "Step 6: RREQ reception at TargNode"-->
+
+    </section><!--End of section "Receiving and Forwarding Route Request"-->
+
+    <section anchor="gen-rrep"
+		title="Generating Route Reply (RREP) at TargNode">
+	<t> When a TargNode receives a RREQ message over a link from a
+	    neighbor Y, TargNode first follows the procedures in
+	    <xref target="process_rreq"/>.  If the link to Y can be
+	    used to tramsmit packets to OrigNode, TargNode generates
+	    a RREP according to the steps below.  Otherwise TargNode
+	    drops the RREQ and does not generate a RREP.
+	</t>
+	<t>
+	    If the L field is not 0, the TargNode MAY delay transmitting the
+	    RREP-DIO for duration RREP_WAIT_TIME to await a route with a lower
+	    Rank.  The value of RREP_WAIT_TIME is set by default to 1/4 of
+	    the duration determined by the L field.  For L == 0,
+	    RREP_WAIT_TIME is set by default to 0.  Depending upon the
+	    application, RREP_WAIT_TIME may be set to other values.
+	    Smaller values enable quicker formation for the P2P route.
+	    Larger values enable formation of P2P routes with better
+	    Rank values.
+	</t>
+	<t>
+	    The address of the OrigNode MUST be
+	    encapsulated in the ART Option and included in this RREP-DIO
+	    message along with the SeqNo of TargNode.
+	</t>
+
+      <section anchor="rrepsymmetric" title="RREP-DIO for Symmetric route">
+	<t>
+	    If the RREQ-Instance corresponding to the RREQ-DIO that arrived
+	    at TargNode has the S bit set to 1, there
+	    is a symmetric route both of whose directions satisfy the
+	    Objective Function. Other RREQ-DIOs might later provide better
+	    upward routes.  The method of selection between a
+	    qualified symmetric route and an asymmetric route that might have
+	    better performance is implementation-specific and out of scope.
+
+<!--  CEP: Our comment to John Scudder:
+		If L is zero,
+		RREP_WAIT_TIME should be set to the lifetime of the DODAG.
+	The text above effectively has:
+		If L is zero, RREP_WAIT_TIME should be set to zero.
+	It seems to me that it is better if the node doesn't wait.
+  -->
+	</t>
+<!-- CEP: The RREP ART has OrigNode address but the SeqNo of TargNode.
+		 The SeqNo of OrigNode is not present! -->
+	<t>
+	    For a symmetric route, the RREP-DIO message is unicast to the next
+	    hop according to the Address Vector (H=0) or the route
+	    entry (H=1);  the DODAG in RREP-Instance does not need to be
+	    built.  The RPLInstanceID in the RREP-Instance is paired as
+	    defined in <xref target="instancepairing"/>.  In case the H bit
+	    is set to 0, the address vector from the RREQ-DIO MUST be
+	    included in the RREP-DIO.
+	</t>
+      </section>   <!-- end section title="RREP-DIO for Symmetric route"  -->
+
+      <section anchor="asymmetricrrep" title="RREP-DIO for Asymmetric Route">
+	<t>
+	    When a RREQ-DIO arrives at a TargNode with the S bit set to 0,
+	    the TargNode MUST build a DODAG in the RREP-Instance
+	    corresponding to the RREQ-DIO rooted at itself, in order to
+	    provide OrigNode with a downstream route
+	    to the TargNode. The RREP-DIO message is transmitted to
+	    multicast group all-AODV-RPL-nodes.
+	</t>
+      </section>
+
+      <section anchor="instancepairing" title="RPLInstanceID Pairing">
+      <t>
+	  Since the RPLInstanceID is assigned locally (i.e., there is no
+	  coordination between routers in the assignment of RPLInstanceID), the
+	  tuple (OrigNode, TargNode, RPLInstanceID) is needed to uniquely
+	  identify a discovered route. It is possible that multiple route
+	  discoveries with dissimilar Objective Functions
+	  are initiated simultaneously. Thus between the same pair of OrigNode
+	  and TargNode, there can be multiple AODV-RPL route discovery
+	  instances.  So that OrigNode and Targnode can avoid any mismatch,
+	  they MUST pair the RREQ-Instance and the RREP-Instance in the same
+	  route discovery by using the RPLInstanceID.
+      </t>
+      <t>
+	  When preparing the RREP-DIO, a TargNode could find the RPLInstanceID
+	  candidate for the RREP-Instance is already occupied by another RPL
+	  Instance from an earlier route discovery operation which is still
+	  active.  This unlikely case might happen if two distinct OrigNodes
+	  need routes to the same TargNode, and they happen to use the same
+	  RPLInstanceID for RREQ-Instance. In such cases, the
+	  RPLInstanceID of an already active RREP-Instance MUST NOT be used
+	  again for assigning RPLInstanceID for the later RREP-Instance.
+	  If the same RPLInstanceID were re-used for two
+	  distinct DODAGs originated with the same DODAGID (TargNode address),
+	  intermediate routers could not distinguish between these
+	  DODAGs (and their associated Objective Functions). Instead, the
+	  RPLInstanceID MUST be replaced by another value so that the two
+	  RREP-instances can be distinguished.  In the RREP-DIO option, the
+	  Delta field of the RREP-DIO message (<xref target="figRREP"/>)
+	  indicates the increment to be applied to the pre-existing
+	  RPLInstanceID to obtain the value of the RPLInstanceID that
+	  is used in the RREP-DIO message.
+<!--  How many bits is the RPLInstanceID??  -->
+	  When the new RPLInstanceID after incrementation exceeds 255, it
+	  rolls over starting at 0. For example, if the RREQ-InstanceID
+	  is 252, and incremented by 6, the new RPLInstanceID will be 2.
+	  Related operations can be found in <xref target="forwardRREP"/>.
+	  RPLInstanceID collisions do not occur across RREQ-DIOs; the
+	  DODAGID equals the OrigNode address and is sufficient to
+	  disambiguate between DODAGs.
+<!--  TODO: Could say something about only 6 bits needed for Delta field. -->
+      </t>
+      </section> <!-- end section title="RREP-DIO for Asymmetric Route"  -->
+    </section> <!-- End of section "Generating Route Reply at TargNode" -->
+
+    <section anchor="forwardRREP" title="Receiving and Forwarding Route Reply">
+	<t> Upon receiving a RREP-DIO, a router which already belongs to the
+	    RREP-Instance SHOULD drop the RREP-DIO.  Otherwise the router	
+ 	    performs the steps in the following subsections.
+        </t>
+      <section anchor="rrep_step1"
+			title="Step 1: Receiving and Evaluation">
+	<t>
+	    If the Objective Function is not satisfied, the router MUST NOT
+	    join the DODAG; the router MUST discard the RREP-DIO, and does not
+	    execute the remaining steps in this section.  An Intermediate
+	    Router MUST discard a RREP if one of its addresses is present
+	    in the Address Vector, and does not execute the remaining steps in
+	    this section.
+	</t>
+	<t>
+	    If the S bit of the associated RREQ-Instance is set to 1,
+	    the router MUST proceed to <xref target="rrep_step2"/>.
+	</t>
+	<t>
+	    If the S-bit of the RREQ-Instance is set to 0, the router MUST
+	    determine whether the downward direction of the link (towards the
+	    TargNode) over which the RREP-DIO is received satisfies the
+	    Objective Function, and the router's Rank would not exceed the
+	    RankLimit.  If so, the router joins the DODAG of the
+	    RREP-Instance.  The router that transmitted the received RREP-DIO
+	    is selected as the preferred parent.  Afterwards, other RREP-DIO
+	    messages can be received; AODV-RPL does not specify any action to
+	    be taken in such cases.
+<!--  CEP: delete this as suggested by Alvaro.
+	                             How to maintain the parent set, select
+	    the preferred parent, and update the router's Rank obeys the
+	    core RPL and the OFs defined in ROLL WG.
+  -->
+	</t>
+      </section><!--End of section "Step 1: Receiving and Evaluation"-->
+
+      <section anchor="rrep_step2"
+			title="Step 2: OrigNode or Intermediate Router">
+	<t>
+	    The router updates its stored value of the TargNode's sequence
+            number according to the value provided in the ART option.
+	    The router next checks if one of its addresses is included in the
+	    ART Option. If so, this router is the OrigNode of the
+	    route discovery.  Otherwise, it is an intermediate router. </t>
+      </section><!--End of section "Step 2: OrigNode or Intermediate Router"-->
+
+      <section anchor="rrep_step3"
+			title="Step 3: Build Route to TargNode">
+	<t>
+	    If the H bit is set to 1, then the router (OrigNode or
+	    intermediate) MUST build a downward route entry towards TargNode
+	    which includes at least the following items: OrigNode Address,
+	    RPLInstanceID, TargNode Address as destination, Next Hop, Lifetime
+	    and Sequence Number.  For a symmetric route, the Next Hop in the
+	    route entry is the router from which the RREP-DIO is received.  For
+	    an asymmetric route, the Next Hop is the preferred parent in the
+	    DODAG of RREP-Instance.  The RPLInstanceID in the route entry MUST
+	    be the RREQ-InstanceID (i.e., after subtracting the Delta field
+	    value from the value of the RPLInstanceID).  The source address is
+	    learned from the ART Option, and
+	    the destination address is learned from the DODAGID.  The lifetime
+	    is set according to DODAG configuration (i.e., not the L field)
+	    and can be extended when the route is actually used. The sequence
+	    number represents the freshness of the route entry, and is copied
+	    from the Dest SeqNo field of the ART option of the RREP-DIO.
+	    A route entry with same source and destination address, same
+	    RPLInstanceID, but stale sequence number (i.e., incoming sequence
+	    number is less than the currently stored sequence number of the
+	    route entry), MUST be deleted.
+	</t>
+      </section><!--End of section "Step 3: Build Route to TargNode"-->
+
+      <section anchor="rrep_step4"
+			title="Step 4: RREP Propagation">
+	<t>
+	    If the receiver is the OrigNode, it can start transmitting the
+	    application data to TargNode along the path as provided in
+	    RREP-Instance, and processing for the RREP-DIO is complete.
+
+	    Otherwise, the RREP will be propagated towards OrigNode.
+	    If H=0, the intermediate router
+	    MUST include the address of the interface receiving the RREP-DIO
+	    into the address vector.  If H=1, according to the last step
+	    the intermediate router has set up a route entry for TargNode.
+
+	    If the intermediate router has a route to OrigNode, it uses that
+	    route to unicast the RREP-DIO to OrigNode.  Otherwise, in case of
+	    a symmetric route, the RREP-DIO message is unicast to the Next Hop
+	    according to the address vector in the RREP-DIO (H=0) or the local
+	    route entry (H=1).  Otherwise, in case of an asymmetric route, the
+	    intermediate router transmits the RREP-DIO to multicast group
+	    all-AODV-RPL-nodes.  The RPLInstanceID in the transmitted RREP-DIO
+	    is the same as the value in the received RREP-DIO.
+	</t>
+      </section><!--End of section "Step 4: RREP Propagation"-->
+<!-- CEP: Alternatively, could forward if better Rank value.
+     	  Or maybe only forward for symmetric routes?  -->
+    </section> <!--End of section "Receiving and Forwarding Route Reply"-->
+</section> <!-- End of section "AODV-RPL operation" -->
+
+<section anchor="GRREP" title="Gratuitous RREP">
+    <t>
+	In some cases, an Intermediate router that receives a RREQ-DIO message
+	MAY unicast a "Gratuitous" RREP-DIO message back to OrigNode before
+	continuing the transmission of the RREQ-DIO towards TargNode.  The
+	Gratuitous RREP allows the OrigNode to start transmitting
+	data to TargNode sooner.  The G bit of the RREP option is provided to
+	distinguish the Gratuitous RREP-DIO (G=1) sent by the Intermediate
+	router from the RREP-DIO sent by TargNode (G=0).
+    </t>
+    <t>
+	The gratuitous RREP-DIO MAY be sent out when the Intermediate router
+	receives a RREQ-DIO for a TargNode, and the router has a pair of
+	downward and upward routes to the TargNode which also satisfy the
+	Objective Function and for which the destination sequence number is
+	at least as large as the sequence number in the RREQ-DIO message.
+	After unicasting the Gratuitous RREP to the OrigNode, the Intermediate
+	router then unicasts the RREQ towards TargNode, so that TargNode will
+	have the advertised route towards OrigNode along with the
+	RREQ-InstanceID for the RREQ-Instance.
+    </t>
+    <t>
+	In case of source routing, the intermediate router MUST include the
+	address vector between the OrigNode and itself in the
+	Gratuitous RREP.  It also includes the address vector in the unicast
+	RREQ-DIO towards TargNode.  Upon reception of the unicast RREQ-DIO,
+	the TargNode will have a 
+	route address vector from itself to the OrigNode. Then the
+	router MUST include the address vector from the TargNode to the
+	router itself in the gratuitous RREP-DIO to be transmitted.
+    </t>
+    <t>
+	For establishing hop-by-hop routes, the intermediate router MUST
+	unicast the received RREQ-DIO to the Next Hop on the route. The Next
+	Hop router along the route MUST build new route entries with the related
+	RPLInstanceID and DODAGID in the downward direction. This process
+	repeats at each node until the RREQ-DIO arrives at the TargNode.
+	Then the TargNode and each router along the path towards OrigNode
+	MUST unicast the RREP-DIO hop-by-hop towards OrigNode
+	as specified in <xref target="gen-rrep"/>.
+    </t>
+</section>	<!-- End of section "Gratuitous RREP" -->
+
+<section anchor="trickle" title="Operation of Trickle Timer">
+    <t>
+<!--  Anand: No need to borrow text from RFC6997.
+      We can reuse trickle timer and DIO transmission procedure in RFC6550.
+-->
+	RREQ-Instance/RREP-Instance multicast uses trickle timer operations
+	<xref target="RFC6206"/> to control RREQ-DIO and
+	RREP-DIO transmissions.  The Trickle control of these DIO transmissions
+	follows the procedures described in the Section 8.3 of
+	<xref target="RFC6550"/> entitled "DIO Transmission".  If the route is
+	symmetric, the RREP DIO does not need the Trickle timer mechanism.
+
+    </t>
+</section>	<!-- End of section "Operation of Trickle Timer" -->
+
+
+<section anchor="iana" title="IANA Considerations">
+    <t>
+	Note to RFC editor:
+    </t>
+    <t>
+	The sentence "The parenthesized numbers are only suggestions."
+	is to be removed prior publication.
+    </t>
+    <t>
+	A Subregistry in this section refers to a named sub-registry of the
+	"Routing Protocol for Low Power and Lossy Networks (RPL)" registry.
+    </t>
+
+    <t>
+	AODV-RPL uses the "P2P Route Discovery Mode of Operation" (MOP == 4)
+	with new Options as specified in this document.  Please cite AODV-RPL
+	and this document as one of the protocols using MOP 4.
+    </t>
+
+    <t>
+	IANA is asked to assign three new AODV-RPL options "RREQ", "RREP" and
+	"ART", as described in <xref target="ianaOpts"/> from the "RPL Control
+	Message Options" Subregistry.  The parenthesized numbers are only
+	suggestions.
+        <figure anchor="ianaOpts" title="AODV-RPL Options">
+        	<artwork align="center"><![CDATA[
+ +-------------+------------------------+---------------+
+ |    Value    |        Meaning         |   Reference   |
+ +-------------+------------------------+---------------+
+ | TBD2 (0x0B) |      RREQ Option       | This document |
+ +-------------+------------------------+---------------+
+ | TBD3 (0x0C) |      RREP Option       | This document |
+ +-------------+------------------------+---------------+
+ | TBD4 (0x0D) |       ART Option       | This document |
+ +-------------+------------------------+---------------+
+        ]]></artwork> </figure></t>
+
+    <t>
+	IANA is requested to allocate a new permanent multicast address
+	with link-local scope called all-AODV-RPL-nodes for nodes
+	implementing this specification. 
+    </t>
+</section>	<!-- End of section "IANA Considerations" -->
+
+
+<section anchor="sec" title="Security Considerations">
+<t>
+   The security considerations for the operation of AODV-RPL
+   are similar to those for the operation of RPL (as described in
+   Section 19 of the RPL specification <xref target="RFC6550"/>).
+   Sections 6.1 and 10 of <xref target="RFC6550"/> describe RPL's
+   optional security framework, which AODV-RPL relies on to provide data
+   confidentiality, authentication,
+   replay protection, and delay protection services.  Additional analysis
+   for the security threats to RPL can be found in <xref target="RFC7416"/>.
+</t>
+
+<t>
+   A router can join a temporary DAG created for a secure AODV-RPL route
+   discovery only if it can support the security configuration in use
+   (see Section 6.1 of <xref target="RFC6550"/>), which also specifies the
+   key in use.  It does not matter whether the key is preinstalled or
+   dynamically acquired.  The router must have the key in use before it
+   can join the DAG being created for secure route discovery.
+</t>
+
+<t>
+    If a rogue router knows the key for the security configuration in use, it
+    can join the secure AODV-RPL route discovery and cause various types of
+    damage.  Such a
+    rogue router could advertise false information in its DIOs in order
+    to include itself in the discovered route(s).  It could generate
+    bogus RREQ-DIO, and RREP-DIO messages carrying bad routes or maliciously
+    modify genuine RREP-DIO messages it receives.  A rogue router acting as
+    the OrigNode could launch denial-of-service attacks against the LLN
+    deployment by initiating fake AODV-RPL route discoveries.  When rogue
+    routers might be present, RPL's preinstalled mode of operation, where the
+    key to use for route discovery is preinstalled, SHOULD be used.
+<!--	CEP: commented out upon request by Alvaro Retana.
+	....... but maybe something should be said without making a mandate.
+    If a future
+    IETF document specifies the authenticated mode of operation as
+    described in <xref target="RFC6550"/>, then future AODV-RPL
+    implementations SHOULD use the authenticated mode of operation.
+  -->
+</t>
+
+<t>
+    When a RREQ-DIO message uses the source routing option by setting the H
+    bit to 0, a rogue router may populate the Address Vector field with a set
+    of addresses that may result in the RREP-DIO traveling in a routing loop.
+</t>
+
+<t>
+	If a rogue router is able to forge a gratuitous RREP,
+	it could mount denial-of-service attacks.
+</t>
+
+</section>	<!-- End of section "Security Considerations" -->
+
+    <section title="Acknowledgements">
+    <t>
+	The authors thank Pascal Thubert, Rahul Jadhav,
+	and Lijo Thomas for their support and valuable inputs.
+	The authors specially thank Lavanya H.M for implementing AODV-RPl in
+	Contiki and conducting extensive simulation studies.
+    </t>
+
+    <t>
+	The authors would like to acknowledge the review, feedback and
+	comments from the following people, in alphabetical order:
+		Roman Danyliw,
+		Lars Eggert,
+		Benjamin Kaduk,
+		Tero Kivinen,
+		Erik Kline,
+		Murray Kucherawy,
+		Warren Kumari,
+		Francesca Palombini,
+		Alvaro Retana,
+		Ines Robles,
+		John Scudder,
+		Meral Shirazipour,
+		Peter Van der Stok,
+		Eric Vyncke,
+		and Robert Wilton.
+    </t>
+    </section>
+</middle>
+
+<back>		<!--  *****BACK MATTER ***** -->
+    <!-- References split into informative and normative -->
+
+    <!-- There are 2 ways to insert reference entries from the citation
+         libraries:
+         1. define an ENTITY at the top, and use "ampersand character" RFC2629;
+            here (as shown)
+         2. simply use a PI "less than character"?rfc
+            include="reference.RFC.2119.xml"?> here
+            (for I-Ds:
+             include="reference.I-D.narten-iana-considerations-rfc2434bis.xml")
+
+     Both are cited textually in the same manner: by using xref elements.
+     If you use the PI option, xml2rfc will, by default, try to find included
+     files in the same directory as the including file. You can also define
+     the XML_LIBRARY environment variable with a value containing a set of
+     directories to search.  These can be either in the local filing system
+     or remote ones accessed by http (http://domain/dir/... ).-->
+
+
+<references title="Normative References">
+	<?rfc include='reference.RFC.2119'?>
+<!--
+	<?rfc include='reference.RFC.5095'?>
+  -->
+	<?rfc include='reference.RFC.6206'?>
+	<?rfc include='reference.RFC.6550'?>
+	<?rfc include='reference.RFC.6551'?>
+	<?rfc include='reference.RFC.8174'?>
+</references>
+
+<references title="Informative References">
+	<?rfc include='reference.RFC.3561'?>
+	<?rfc include='reference.RFC.6687'?>
+	<?rfc include='reference.RFC.6997'?>
+	<?rfc include='reference.RFC.6998'?>
+	<?rfc include='reference.RFC.7416'?>
+	<?rfc include='reference.RFC.7548'?>
+	<?rfc include='reference.RFC.7276'?>
+	<?rfc include='reference.RFC.9010'?>
+	<?rfc include='reference.RFC.9030'?>
+
+<!-- Co-iOAM paper Reference
+	R. Ballamajalu, S. V. R. Anand and M. Hegde, "Co-iOAM: In-situ
+	telemetry metadata transport for resource constrained networks
+	within IETF standards framework," 2018 10th International Conference
+	on Communication Systems & Networks (COMSNETS), Bengaluru,
+	2018, pp. 573-576.  doi: 10.1109/COMSNETS.2018.8328276
+-->
+<reference anchor="co-ioam">
+        <front>
+          <title>
+                Co-iOAM: In-situ Telemetry Metadata Transport for
+                Resource Constrained Networks within IETF Standards Framework
+          </title>
+
+          <author fullname="Rashmi Ballamajalu"
+				initials="" surname="Rashmi Ballamajalu">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="S.V.R. Anand" initials="S.V.R." surname="Anand">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="Malati Hegde" initials="" surname="Malati Hegde">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <date month="Jan" year="2018" />
+        </front>
+	<seriesInfo
+		name="2018 10th International Conference on Communication
+			Systems &amp; Networks (COMSNETS)"
+		value="pp.573-576"/>
+</reference>
+
+<reference anchor="cooja"
+		target="https://github.com/contiki-os/contiki/tree/master/tools/cooja">
+	<front>
+	    <title> Cooja Simulator for Wireless Sensor Networks
+                   (Contiki/Cooja Version 2.7)
+	    </title>
+	    <author fullname="Contiki/Cooja contributors" initials=""
+		surname="Contiki/Cooja contributors">
+		<organization> </organization>
+		<address> </address>
+	    </author>
+          <date month="Nov" year="2013"/>
+	</front>
+</reference>
+
+<reference anchor="contiki"
+		target="https://github.com/contiki-os/contiki">
+	<front>
+	    <title> The Contiki Open Source OS for the Internet of Things
+                    (Contiki Version 2.7)
+	    </title>
+	    <author fullname="Contiki contributors" initials=""
+		surname="Contiki contributors">
+		<organization> </organization>
+		<address> </address>
+	    </author>
+          <date month="Nov" year="2013" />
+	</front>
+</reference>
+
+<reference anchor="Contiki-ng"
+		target="https://github.com/contiki-ng/contiki-ng">
+	<front>
+	    <title> Contiki-NG: The OS for Next Generation IoT Devices
+                    (Contiki-NG Version 4.6)
+	    </title>
+	    <author fullname="Contiki-NG contributors" initials=""
+		surname="Contiki-NG contributors">
+		<organization> </organization>
+		<address> </address>
+	    </author>
+          <date month="Dec" year="2020" />
+	</front>
+</reference>
+
+<reference anchor="Link_Asymmetry"
+		target="https://doi.org/10.1145/1689239.1689242">
+        <front>
+          <title>
+		On Link Asymmetry and One-way Estimation in Wireless
+		Sensor Networks
+          </title>
+
+          <author fullname="Lifeng Sang"
+				initials="" surname="Lifeng Sang">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="Anish Arora" initials="" surname="Anish Arora">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="Hongwei Zhang" initials="" surname="Hongwei Zhang">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <date month="Feb" year="2010" />
+        </front>
+	<seriesInfo
+		name="ACM Transactions on Sensor Networks, Volume 6 Issue 2"
+		value="pp.1-25"/>
+</reference>
+
+<reference anchor="low-power-wireless"
+		target="https://doi.org/10.1145/1689239.1689246">
+        <front>
+          <title>
+		An empirical study of low-power wireless
+          </title>
+
+          <author fullname="Kannan Srinivasan"
+				initials="" surname="Kannan Srinivasan">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="Prabal Dutta" initials="" surname="Prabal Dutta">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+	  <author fullname="Arsalan Tavakoli"
+					initials="" surname="Arsalan Tavakoli">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="Philip Levis" initials="" surname="Philip Levis">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <date month="Feb" year="2010" />
+        </front>
+	<seriesInfo
+		name="ACM Transactions on Sensor Networks"
+		value="(Volume 6 Issue 2 pp.1-49)"/>
+</reference>
+
+<reference anchor="empirical-study">
+        <front>
+          <title>
+		An empirical study of asymmetry in low-power wireless links
+          </title>
+
+          <author fullname="Prasant Misra"
+				initials="" surname="Prasant Misra">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="Nadeem Ahmed" initials="" surname="Nadeem Ahmed">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <author fullname="Sanjay Jha" initials="" surname="Sanjay Jha">
+            <organization> </organization>
+            <address>
+            </address>
+          </author>
+
+          <date month="Jul" year="2012" />
+        </front>
+	<seriesInfo
+		name="IEEE Communications Magazine"
+		value="(Volume: 50, Issue: 7)"/>
+</reference>
+
+</references>
+
+<section anchor="appendix-a"
+	title="Example: Using ETX/RSSI Values to determine value of S bit">
+    <t> The combination of Received Signal Strength Indication(downstream)
+        (RSSI) and Expected Number of Transmissions(upstream) (ETX) has been
+        tested to determine whether a link is symmetric or asymmetric at
+        intermediate routers. We present two methods to obtain an ETX value
+        from RSSI measurement.
+
+    </t>
+    <t>
+	<list style="hanging">
+	<t hangText="Method 1:">
+	    In the first method, we constructed a table measuring RSSI vs
+	    ETX using the Cooja simulation <xref target="cooja"/>
+	setup in the Contiki OS environment<xref target="contiki"/>. We used
+        Contiki-2.7 running 6LoWPAN/RPL protocol stack for the simulations.
+        For approximating the number of packet drops based on the RSSI values,
+        we implemented simple logic that drops transmitted packets with certain
+        pre-defined ratios before handing over the packets to the receiver. The
+        packet drop ratio is implemented as a table lookup of RSSI ranges
+        mapping to different packet drop ratios with lower RSSI ranges resulting
+        in higher values. While this table has been defined for the purpose of
+        capturing the overall link behavior, it is highly recommended to conduct
+        physical radio measurement experiments, in general. By keeping the
+        receiving node at different distances, we let the packets experience
+        different packet drops as per the described method. The ETX value
+        computation is done by another module which is part of RPL
+        Objective Function implementation. Since ETX value is reflective of
+        the extent of packet drops, it allowed us to prepare a useful
+        ETX vs RSSI table.  ETX versus RSSI values obtained in this way
+	may be used as explained below:
+	<figure anchor="commlink"
+		title="Communication link from Source to Destination">
+	<artwork>
+	<![CDATA[Source -------> NodeA -------> NodeB -----> Destination]]>
+	</artwork>
+	</figure>
+        </t>
+        </list>
+        </t>
+
+	<texttable anchor="table_ETX_RSSI"
+		title="Selection of S bit based on Expected ETX value">
+	    <ttcol align='center'>RSSI at NodeA for NodeB</ttcol>
+	    <ttcol align='center'>Expected ETX at NodeA for NodeB->NodeA</ttcol>
+
+	    <c>&gt; -60</c>
+	    <c>150</c>
+
+	    <c>-70 to -60</c>
+	    <c>192</c>
+
+	    <c>-80 to -70</c>
+	    <c>226</c>
+
+	    <c>-90 to -80</c>
+	    <c>662</c>
+
+	    <c>-100 to -90</c>
+	    <c>3840</c>
+	</texttable>
+
+        <t>
+	<list style="hanging">
+	<t hangText="Method 2:">One could also make use of the function
+	    guess_etx_from_rssi() defined in the 6LoWPAN/RPL protocol stack of
+	    Contiki-ng OS <xref target="Contiki-ng"/> to obtain RSSI-ETX
+	    mapping. This function outputs ETX value ranging between 128
+	    and 3840 for -60 &lt;= rssi &lt;= -89. The function description
+	    is beyond the scope of this document.
+        </t>
+        </list>
+        </t>
+
+    <t> We tested the operations in this specification by making the
+	following experiment, using the above parameters.  In our experiment,
+	a communication link is considered as symmetric if the ETX value of
+	NodeA->NodeB and NodeB->NodeA (see <xref target="commlink"/>) are
+	within, say, a 1:3
+	ratio.  This ratio should be understood as determining the
+	link's symmetric/asymmetric nature.  NodeA can typically know
+	the ETX value in the direction of NodeA -> NodeB but it has no direct
+	way of knowing the value of ETX from NodeB->NodeA.  Using physical
+	testbed experiments and realistic wireless channel propagation
+	models, one can determine a relationship between RSSI and ETX
+	representable as an expression or a mapping table.  Such a
+	relationship in turn can be used to estimate ETX value at nodeA for
+	link NodeB--->NodeA from the received RSSI from NodeB.  Whenever
+	nodeA determines that the link towards the nodeB is bi-directional
+	asymmetric then the S bit is set to 0.  Afterwards, the link from
+	NodeA to Destination remains designated as asymmetric and the S bit
+	remains set to 0.
+     </t>
+    <t>
+	Determination of asymmetry versus bidirectionality remains a topic
+	of lively discussion in the IETF.
+	<!-- https://github.com/roll-wg/dao-projection/issues/11  -->
+    </t>
+</section>
+
+<section anchor="appendix-b" title="Changelog">
+    <t>
+	Note to the RFC Editor: please remove this section before publication.
+    </t>
+
+    <section title="Changes from version 13 to version 14">
+	<t>
+	<list style="symbols">
+	    <t>
+		Provided more details about scenarios naturally supporting
+		the choice of AODV-RPL as a routing protocol
+	    </t>
+	    <t>
+		Added new informative references <xref target="RFC6687"/>,
+		<xref target="RFC9010"/>) that describe the value provided
+		by peer-to-peer routing.
+	    </t>
+	    <t>
+		Requested IANA to allocate a new multicast group to enable
+		clean separation of AODV-RPL operation from previous
+		routing protocols in the RPL family.
+	    </t>
+	    <t>
+		Cited <xref target="RFC6550"/> as the origination of the
+		definition of DIO
+	    </t>
+	    <t>
+		Defined "hop-by-hop route" as a route created using RPL's
+		storing mode.
+	    </t>
+	    <t>
+		Defined new configuration variable REJOIN_REENABLE.
+	    </t>
+	    <t>
+		Improved definition for RREQ-InstanceID.  Created analogous
+		definition for RREP-InstanceID=(RPLInstanceID, TargNode_IPaddr)
+	    </t>
+	    <t>
+		Improved definition of source routing
+	    </t>
+	    <t>
+		Clarified that the Border Router (BR) in
+		<xref target="figSymm-a"/> does not imply that AODV does not
+		a require a BR as a protocol entity.
+	    </t>
+	    <t>
+		Provided more guidelines about factors to be considered
+		by OrigNode when selecting a value for the 'L' field.
+	    </t>
+	    <t>
+		Described the disadvantage of not keeping track of the
+		Address Vector in the RREQ-Instance.
+	    </t>
+	    <t>
+		Specified that in non-storing mode an intermediate node has
+		to record the IP addresses of both incoming and outgoing
+		interfaces into the Address Vector, when those interfaces have
+		different IP addresses.
+	    </t>
+	    <t>
+		Added three informative references to describe relevant
+		details about evaluating link assymetry.
+	    </t>
+	    <t>
+		Clarified details about Gratuitous RREP.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 12 to version 13">
+	<t>
+	<list style="symbols">
+	    <t>
+		Changed name of "Shift" field to be the "Delta" field.
+	    </t>
+	    <t>
+		Specified that if a node does not have resources, it MUST
+		drop the RREQ.
+	    </t>
+	    <t>
+		Changed name of MaxUseRank to MaxUsefulRank.
+	    </t>
+	    <t>
+		Revised a sentence that was not clear about when a TargNode
+		can delay transmission of the RREP in response to a RREQ.
+	    </t>
+	    <t>
+		Provided advice about running AODV-RPL at same time as
+		P2P-RPL or native RPL.
+	    </t>
+	    <t>
+		Small reorganization and enlargement of the description
+		of Trickle time operation in <xref target="trickle"/>.
+	    </t>
+	    <t>
+		Added definition for "RREQ-InstanceID" to Terminology
+		section.
+	    </t>
+	    <t>
+		Specified that once a node leaves an RREQ-Instance, it MUST
+		NOT rejoin the same RREQ-Instance.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 11 to version 12">
+	<t>
+	<list style="symbols">
+	    <t>
+		Defined RREP_WAIT_TIME for asymmetric as well as
+		symmetric handling of RREP-DIO.
+	    </t>
+	    <t>
+		Clarifed link-local multicast transmission to use
+		link-local multicast group all-RPL nodes.
+	    </t>
+	    <t>
+		Identified some security threats more explicitly.
+	    </t>
+	    <t>
+		Specified that the pairing between RREQ-DIO and RREP-DIO
+		happens at OrigNode and TargNode.  Intermediate routers do not
+		necessarily maintain the pairing.
+	    </t>
+	    <t>
+		When RREQ-DIO is received with H=0 and S=1, specified that
+		intermediate routers MAY store symmetric Address Vector
+		information for possible use when a matchine RREP-DIO is
+		received.
+	    </t>
+	    <t>
+		Specified that AODV-RPL uses the "P2P Route Discovery Mode of
+		Operation" (MOP == 4), instead of requesting the allocation
+		of a new MOP.  Clarified that there is no conflict with
+		<xref target="RFC6997"/>.
+	    </t>
+	    <t>
+		Fixed several important typos and improved language in
+		numerous places.
+	    </t>
+	    <t>
+		Reorganized the steps in the specification for handling RREQ
+		and RREP at an intermediate router, to more closely follow the
+		order of processing actions to be taken by the router.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 10 to version 11">
+	<t>
+	<list style="symbols">
+	    <t>
+		Numerous editorial improvements.
+	    </t>
+	    <t>
+		Replace Floor((7+(Prefix Length))/8) by Ceil(Prefix Length/8)
+		for simplicity and ease of understanding.
+	    </t>
+	    <t>
+		Use "L field" instead of "L bit" since L is a two-bit field.
+	    </t>
+	    <t>
+		Improved the procedures in section 6.2.1.
+	    </t>
+	    <t>
+		Define the S bit of the data structure a router uses to
+		represent whether or not the RREQ instance is for a symmetric
+		or an asymmetric route.  This replaces text in the document
+		that was a holdover from earlier versions in which the RREP
+		had an S bit for that purpose.
+	    </t>
+	    <t>
+		Quote terminology from AODV that has been identified as
+		possibly originating in language reflecting various kinds
+		of bias against certain cultures.
+	    </t>
+	    <t>
+		Clarified the relationship of AODV-RPL to RPL.
+	    </t>
+	    <t>
+		Eliminated the "Point-to-Point" terminology to avoid
+		suggesting only a single link.
+	    </t>
+	    <t>
+		Modified certain passages to better reflect the possibility
+		that a router might have multiple IP addresses.
+	    </t>
+	    <t>
+		"Rsv" replaced by "X X" for reserved field.
+	    </t>
+	    <t>
+		Added mandates for reserved fields, and replaces some
+		ambiguous language phraseology by mandates.
+	    </t>
+	    <t>
+		Replaced "retransmit" terminology by more correct "propagate"
+		terminology.
+	    </t>
+	    <t>
+		Added text about determining link symmetry near
+		<xref target="figSymm-b"/>.
+	    </t>
+	    <t>
+		Mandated checking the Address Vector to avoid routing loops.
+	    </t>
+	    <t>
+		Improved specification for use of the Delta value in
+		<xref target="instancepairing"/>.
+	    </t>
+	    <t>
+		Corrected the wrong use of RREQ-Instance to be RREP-Instance.
+	    </t>
+	    <t>
+		Referred to Subregistry values instead of Registry values
+		in <xref target="iana"/>.
+	    </t>
+	    <t>
+		Sharpened language in <xref target="sec"/>, eliminated
+		misleading use of capitalization in the words
+		"Security Configuration".
+	    </t>
+	    <t>
+		Added acknowledgements and contributors.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+
+    <section title="Changes from version 09 to version 10">
+	<t>
+	<list style="symbols">
+	    <t>
+		Changed the title for brevity and to remove acronyms.
+	    </t>
+	    <t>
+		Added "Note to the RFC Editor" in <xref target="iana"/>.
+	    </t>
+	    <t>
+		Expanded DAO and P2MP in <xref target="Introduction"/>.
+	    </t>
+	    <t>
+		Reclassified <xref target="RFC6998"/> and
+		<xref target="RFC7416"/> as Informational.
+	    </t>
+	    <t>
+		SHOULD changed to MUST in <xref target="RREQmsg"/>
+		and <xref target="RREPmsg"/>.
+	    </t>
+	    <t>
+		Several editorial improvements and clarifications.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 08 to version 09">
+	<t>
+	<list style="symbols">
+	    <t>
+		Removed section "Link State Determination" and put some of the
+		relevant material into <xref target="channel"/>.
+	    </t>
+	    <t>
+		Cited security section of <xref target="RFC6550"/> as part of
+		the RREP-DIO message description in <xref target="terms"/>.
+	    </t>
+	    <t>
+		SHOULD has been changed to MUST in <xref target="RREPmsg"/>.
+	    </t>
+	    <t>
+		Expanded the terms ETX and RSSI in <xref target="channel"/>.
+	    </t>
+            <t>
+		<xref target="forwardRREP"/> has been expanded to provide
+		a more precise explanation of the handling of route reply.
+
+            </t>
+	    <t>
+		Added <xref target="RFC7416"/> in the Security Considerations
+		(<xref target="sec"/>) for RPL security threats.
+		Cited <xref target="RFC6550"/> for authenticated
+		mode of operation.
+	    </t>
+	    <t>
+		Appendix A has been mostly re-written to describe methods
+		to determine whether or not the S bit should be set to 1.
+	    </t>
+	    <t>
+		For consistency, adjusted several mandates from SHOULD to MUST
+		and from SHOULD NOT to MUST NOT.
+	    </t>
+	    <t>
+		Numerous editorial improvements and clarifications.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 07 to version 08">
+	<t>
+	<list style="symbols">
+	    <t>
+		Instead of describing the need for routes to
+		"fulfill the requirements", specify that routes need to
+		"satisfy the Objective Function".
+	    </t>
+	    <t>
+		Removed all normative dependencies on <xref target="RFC6997"/>
+	    </t>
+	    <t>
+		Rewrote <xref target="sec"/> to avoid duplication of language
+		in cited specifications.
+	    </t>
+	    <t>
+		Added a new section "Link State Determination"
+		<!--  <xref target="linkstate"/>  --> with text and citations to
+		more fully describe how implementations determine whether
+		links are symmetric.
+	    </t>
+	    <t>
+		Modified text comparing AODV-RPL to other protocols to
+		emphasize the need for AODV-RPL instead of the problems with
+		the other protocols.
+	    </t>
+	    <t>
+		Clarified that AODV-RPL uses some of the base RPL specification
+		but does not require an instance of RPL to run.
+	    </t>
+	    <t>
+		Improved capitalization, quotation, and spelling variations.
+	    </t>
+	    <t>
+		Specified behavior upon reception of a RREQ-DIO or RREP-DIO
+		message for an already existing DODAGID
+		(e.g, <xref target="forwardRREP"/>).
+	    </t>
+	    <t>
+		Fixed numerous language issues in IANA Considerations
+		<xref target="iana"/>.
+	    </t>
+	    <t>
+		For consistency, adjusted several mandates from SHOULD to MUST
+		and from SHOULD NOT to MUST NOT.
+	    </t>
+	    <t>
+		Numerous editorial improvements and clarifications.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 06 to version 07">
+	<t>
+	<list style="symbols">
+	    <t>
+		Added definitions for all fields of the ART option
+		(see <xref target="artop"/>).  Modified definition of
+		Prefix Length to prohibit Prefix Length values greater
+		than 127.
+	    </t>
+	    <t>
+		Modified the language from <xref target="RFC6550"/>
+		Target Option definition so that the trailing zero bits
+		of the Prefix Length are no longer described as "reserved".
+	    </t>
+	    <t>
+		Reclassified <xref target="RFC3561"/> and
+		<xref target="RFC6998"/> as Informative.
+	    </t>
+	    <t>
+		Added citation for <xref target="RFC8174"/> to Terminology
+		section.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+
+    <section title="Changes from version 05 to version 06">
+	<t>
+	<list style="symbols">
+	    <t>
+		Added Security Considerations based on the security
+		mechanisms defined in <xref target="RFC6550"/>.
+	    </t>
+	    <t>
+		Clarified the nature of improvements due to P2P route
+		discovery versus
+		bidirectional asymmetric route discovery.
+	    </t>
+	    <t>
+		Editorial improvements and corrections.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 04 to version 05">
+        <t>
+        <list style="symbols">
+	    <t>
+		Add description for sequence number operations.
+	    </t>
+	    <t>
+		Extend the residence duration L in section 4.1.
+	    </t>
+	    <t>
+		Change AODV-RPL Target option to ART option.
+	    </t>
+        </list>
+        </t>
+    </section>
+
+    <section title="Changes from version 03 to version 04">
+	<t>
+	<list style="symbols">
+	    <t>
+		Updated RREP option format. Remove the T bit in RREP option.
+	    </t>
+	    <t>
+		Using the same RPLInstanceID for RREQ and RREP,
+		no need to update <xref target="RFC6550"/>.
+	    </t>
+	    <t>
+		Explanation of Delta field in RREP.
+	    </t>
+	    <t>
+		Multiple target options handling during transmission.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+    <section title="Changes from version 02 to version 03">
+	<t>
+	<list style="symbols">
+	    <t>
+		Include the support for source routing.
+	    </t>
+	    <t>
+		Import some features from <xref target="RFC6997"/>, e.g.,
+		choice between hop-by-hop and source routing, the L field
+		which determines the duration of residence in the DAG,
+		RankLimit, etc.
+	    </t>
+	    <t>
+		Define new target option for AODV-RPL, including the
+		Destination Sequence Number in it. Move the TargNode address
+		in RREQ option and the OrigNode address in RREP option into
+		ADOV-RPL Target Option.
+	    </t>
+	    <t>
+		Support route discovery for multiple targets in one RREQ-DIO.
+	    </t>
+	    <t>
+		New RPLInstanceID pairing mechanism.
+	    </t>
+	</list>
+	</t>
+    </section>
+
+</section>
+
+<section title="Contributors">
+    <t><list>
+	<t> Abdur Rashid Sangi<vspace />
+	    Huaiyin Institute of Technology<vspace />
+   	    No.89 North Beijing Road, Qinghe District<vspace />
+   	    Huaian  223001<vspace />
+   	    P.R. China<vspace />
+   	    Email: sangi_bahrian@yahoo.com</t>
+
+	<t> Malati Hegde<vspace />
+	    Indian Institute of Science<vspace />
+	    Bangalore 560012<vspace />
+	    India <vspace />
+	    Email: malati@iisc.ac.in</t>
+
+	<t> Mingui Zhang<vspace />
+	    Huawei Technologies<vspace />
+	    No. 156 Beiqing Rd. Haidian District<vspace />
+	    Beijing  100095<vspace />
+   	    P.R. China<vspace />
+   	    Email: zhangmingui@huawei.com</t>
+
+<!--
+    <author fullname="Mingui Zhang" initials="M." surname="Zhang">
+      <organization>Huawei Technologies</organization>
+      <address>
+        <postal>
+          <street>No. 156 Beiqing Rd. Haidian District</street>
+          <city>Beijing</city>
+          <region/>
+          <code>100095</code>
+          <country>China</country>
+        </postal>
+       <phone/>
+      <email>zhangmingui@huawei.com</email>
+      </address>
+     </author>
+  -->
+    </list></t>
+</section>
+
+</back>
+
+</rfc>
